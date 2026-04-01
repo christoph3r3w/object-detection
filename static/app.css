@@ -1,0 +1,18 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+
+  @supports (interpolate-size: allow-keywords){
+	  interpolate-size: allow-keywords;
+	  transition-behavior: allow-discrete;
+	  scroll-behavior: smooth;
+    font-size-adjust: 0.5;
+    @view-transition {
+      navigation: auto;
+    }
+
+  }
+}
