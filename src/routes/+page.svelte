@@ -70,7 +70,7 @@ onMount(async() => {
 				p.rect(object.x,object.y,object.width,object.height)
 				
 				p.fill(hue, 100, 50);
-				p.rect(object.x, object.y - textHeight - 5, textWidth, textHeight);
+				p.rect(object.x, object.y - textHeight - 2, textWidth, textHeight,2);
 				
 				p.noStroke();
 				p.fill(255);
