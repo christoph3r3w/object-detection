@@ -1,9 +1,6 @@
 <script>
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
-	// import { GeistSans } from 'geist/font/sans';
-	// import { GeistMono } from 'geist/font/mono';
-
 	let { children } = $props();
 </script>
 
@@ -26,8 +23,8 @@
 		margin: 0 auto;
 	}
 	section {
-		/* border:solid rgb(0, 255, 0); */
 		max-width: 80dvw;
+		width: 100%;
 		height: fit-content;
 		display: flex;
 		flex-direction: column;

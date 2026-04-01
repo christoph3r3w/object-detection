@@ -1,5 +1,6 @@
 <script>
 import { onMount } from 'svelte';
+import {page} from '$app/stores';
 import p5 from 'p5';
 import ml5 from 'ml5'; 
 
@@ -9,18 +10,30 @@ let video
 let detector
 let detections = $state([]);
 let confidence = $state([]);
+let errorMessage = $state(null);
 
 onMount(async() => {
-// onMount(() => {
- 	// const ml5 = import('ml5');
-  // Initialize the video capture
 
+ 	// const ml5 = import('ml5');
+	 try {
+        await navigator.mediaDevices.getUserMedia({ video: true });
+    } catch (e) {
+        if (e.name === 'NotAllowedError') {
+            errorMessage = 'Camera permission denied';
+        } else if (e.name === 'NotFoundError') {
+            errorMessage = 'No camera found';
+        } else {
+            errorMessage = 'Error accessing camera';
+        }
+    }
+  
+  	// Initialize the video capture and object detector
 	new p5((p)=>{
 		p.setup = async ()=>{
 			canvas = p.createCanvas(740,480)
 			canvas.elt.classList.add('canvas');
 			video = await p.createCapture(p.VIDEO)
-			canvas.flipped = true;
+			// canvas.flipped = true;
 			video.size(740,480)
 			video.hide();
 
@@ -32,9 +45,8 @@ onMount(async() => {
 			p.image(video,0,0)
 			for(let i = 0; i < detections.length; i++){
 				let object = detections[i];
-				let id = object.label + i; // rough identity per slot
+				let id = object.label + i; 
 
-				// Initialize smoothed position if new
 				if (!smoothed[id]) {
 					smoothed[id] = { x: object.x, y: object.y, w: object.width, h: object.height };
 				}
@@ -48,8 +60,8 @@ onMount(async() => {
 
 				let text = `${object.label} ${object.confidence.toFixed(2)}`
 				let textWidth = p.textWidth(text) + 3;
-				let textHeight = 24; // approximate height for text size 24
-				let hue = i / detections.length * 120 * object.confidence; // green to red based on confidence
+				let textHeight = 24; 
+				let hue = i / detections.length * 120 * object.confidence; 
 				p.colorMode(p.HSL, 100);
 
 				p.stroke(hue, 100, 50);
@@ -57,8 +69,7 @@ onMount(async() => {
 				p.noFill();
 				p.rect(object.x,object.y,object.width,object.height)
 				
-				p.stroke(hue, 100, 50);
-				p.noFill();
+				p.fill(hue, 100, 50);
 				p.rect(object.x, object.y - textHeight - 5, textWidth, textHeight);
 				
 				p.noStroke();
@@ -67,8 +78,8 @@ onMount(async() => {
 				p.text(text,object.x, object.y - 5)
 
 			}		
-			
 		}
+
 		function modelIFReady(){
 			console.log('model ready')
 			detector.detect(video,yourDetections)
@@ -76,7 +87,7 @@ onMount(async() => {
 
 		function yourDetections(error,results){
 			if(error){
-				console.log(error)
+				errorMessage = error;
 			}
 			detections = results
 			confidence = detections.confidence
@@ -109,15 +120,15 @@ onMount(async() => {
 	
 </div>
 
-<div bind:this={canvasContainer}>
-	<video id="video"></video>
-	<!-- <canvas id="canvas" class="canvas" bind:this={canvas} style="position: fixed; inset: 0; background: transparent;"></canvas> -->
-
+<div bind:this={canvasContainer} width="500px" height="400px" class="canvasContainer" error={errorMessage}>
+	<!-- <video id="video"></video> -->
 </div>
 
 <div class="detected">
 	<ul >
 	{#each detections as detection}
+		<li>- {detection.label} detected ({detection.confidence.toFixed(2)})</li>
+		<li>- {detection.label} detected ({detection.confidence.toFixed(2)})</li>
 		<li>- {detection.label} detected ({detection.confidence.toFixed(2)})</li>
 	{/each}
 	</ul>
@@ -125,29 +136,39 @@ onMount(async() => {
 
 <style>
 
-/* * { */
-	/* box-sizing: border-box; */
-	/* font-family: "Geist", sans-serif;
-	font-optical-sizing: auto;
-	font-style: normal; */
-/* } */
-.label-container {
+* {
 	font-family: "Geist Pixel", sans-serif;
+	box-sizing: border-box;
+	transition: all 400ms ease-out !important;
+}
+.label-container {
+	flex: 1 0;
 	position: relative;
 	display:flex;
 	justify-content: space-between;
 	width: 100%;
 	min-height: 4rem;
 	max-height: fit-content;
+	max-width: 90%;
 	font-size: 1.25rem;
-	/* font-family: geist; */
-	/* border: solid yellow; */
+	/* border: solid 1px red; */
 }
 
-:global(div:has(.canvas)) {
+:global(.canvasContainer) {
+	flex: 1 0;
 	display: flex;
 	justify-content: center;
 	width: 100%;
+
+	&::after {
+		content:attr(error, "Canvas loading...");
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		font-size: 1.5rem;
+		color: #333;
+	}
 }
 :global(.canvas) {
 	border: solid blue;
@@ -155,22 +176,25 @@ onMount(async() => {
 	width: 100% !important;
 	max-width: 90%;
 	align-self: center !important;
-	height: 2rem ;
-}
+	height: 2rem ;	
+	z-index: 3;
 
-#video {
-	display: none;
+	@starting-style{
+		width: 500px;
+		height: 400px;
+	}
 }
 
 .detected {
 	position: relative;
 	display: flex;
 	min-height: 5rem;
-	max-height: fit-content;
+	max-height: 10dvh;
 	width: 100%;
+	max-width: 90%;
 	margin-top: 2%;
 	font-size: clamp(1rem, 4vh, 3rem);
-	overflow-y: auto !important;
+	overflow-y: scroll !important;
 }
 
 </style>
