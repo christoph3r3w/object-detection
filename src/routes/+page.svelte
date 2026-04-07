@@ -106,7 +106,6 @@ onMount(async() => {
 		if (canvas) {
 			canvas.remove();
 		}
-	
 	};
 	
 });
@@ -114,7 +113,7 @@ onMount(async() => {
 
 <div class="label-container">
 	<div>
-		<h1> p5 ml5 object detection </h1>
+		<h1> ml5 object detection </h1>
 	</div>
 	<p>{detections.length} objects detected</p>
 	
@@ -128,8 +127,6 @@ onMount(async() => {
 	<ul >
 	{#each detections as detection}
 		<li>- {detection.label} detected ({detection.confidence.toFixed(2)})</li>
-		<li>- {detection.label} detected ({detection.confidence.toFixed(2)})</li>
-		<li>- {detection.label} detected ({detection.confidence.toFixed(2)})</li>
 	{/each}
 	</ul>
 </div>
@@ -141,6 +138,7 @@ onMount(async() => {
 	box-sizing: border-box;
 	transition: all 400ms ease-out !important;
 }
+
 .label-container {
 	flex: 1 0;
 	position: relative;
@@ -151,11 +149,10 @@ onMount(async() => {
 	max-height: fit-content;
 	max-width: 90%;
 	font-size: 1.25rem;
-	/* border: solid 1px red; */
+	font-weight: 600;
 }
 
 :global(.canvasContainer) {
-	flex: 1 0;
 	display: flex;
 	justify-content: center;
 	width: 100%;
@@ -170,6 +167,7 @@ onMount(async() => {
 		color: #333;
 	}
 }
+
 :global(.canvas) {
 	border: solid blue;
 	border-radius: 5px;
@@ -188,13 +186,14 @@ onMount(async() => {
 .detected {
 	position: relative;
 	display: flex;
-	min-height: 5rem;
-	max-height: 10dvh;
+	min-height: fit-content;
+	max-height: 30dvh;
 	width: 100%;
 	max-width: 90%;
 	margin-top: 2%;
 	font-size: clamp(1rem, 4vh, 3rem);
 	overflow-y: scroll !important;
+	overflow-y: auto !important;
 }
 
 </style>
